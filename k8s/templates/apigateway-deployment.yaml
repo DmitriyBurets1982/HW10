@@ -1,0 +1,43 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: hw10-apigateway-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hw10-apigateway
+  template:
+    metadata:
+      labels:
+        app: hw10-apigateway
+    spec:
+      containers:
+        - name: hw10-apigateway
+          image: dmitriyburets1982/hw10-apigateway:latest
+          imagePullPolicy: Always
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hw10-apigateway-service
+spec:
+  type: NodePort
+  selector:
+    app: hw10-apigateway
+  ports:
+    - name: hw10-apigateway
+      protocol: TCP
+      port: 80
+      targetPort: 8080
